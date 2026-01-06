@@ -35,9 +35,10 @@ fi
 
 echo "Select demo to run:"
 echo "  1) Enterprise Database Demo (recommended)"
-echo "  2) Simple Info-Only Demo"
+echo "  2) Healthcare Demo (proves universality)"
+echo "  3) Simple Info-Only Demo"
 echo ""
-read -p "Enter choice (1 or 2): " choice
+read -p "Enter choice (1, 2, or 3): " choice
 
 case $choice in
     1)
@@ -47,6 +48,13 @@ case $choice in
         python demo_database.py
         ;;
     2)
+        echo ""
+        echo "Running Healthcare Demo..."
+        echo "This proves the kernel is domain-agnostic..."
+        echo ""
+        python demo_healthcare.py
+        ;;
+    3)
         echo ""
         echo "Running Simple Demo..."
         echo ""

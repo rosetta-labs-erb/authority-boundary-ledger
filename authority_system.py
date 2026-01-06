@@ -1,12 +1,16 @@
 """
-Authority Ledger System - Production Version
+Authority Ledger System - Universal Kernel
 
-Combines ledger + verification for two-layer defense.
+Combines ledger + verification + capacity gating.
+Decoupled from specific domains via the Rosetta Capability Protocol.
+
+The kernel doesn't know what "SQL" or "prescriptions" are—it only knows
+what Action.READ and Action.WRITE mean. This makes it domain-agnostic.
 """
 
 import anthropic
 import time
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from dataclasses import dataclass
 
 from boundary_ledger import BoundaryLedger
@@ -25,7 +29,7 @@ class Message:
 @dataclass
 class GenerationResult:
     """Result of generation with enforcement."""
-    status: str  # "PASS", "VERIFIED", "BLOCKED"
+    status: str  # "PASS", "VERIFIED", "BLOCKED", "TOOL_CALL"
     response: str
     boundary_active: bool
     latency_ms: int
@@ -34,17 +38,21 @@ class GenerationResult:
 
 class AuthorityLedger:
     """
-    Authority Ledger System.
+    Authority Ledger System (The Universal Kernel).
     
-    Two-layer defense:
-    1. Prompt-level prevention (inject constraint into system prompt)
-    2. Post-generation verification (check output)
+    Enforces the 'Rosetta Capability Protocol':
+    1. Applications define tools with x-rosetta-capacity metadata
+    2. Kernel checks user permissions against tool requirements
+    3. Kernel physically removes tools the user cannot access
+    
+    This is domain-agnostic—works for databases, healthcare, finance, or any domain.
+    The kernel doesn't care what tools do, only what permissions they require.
     """
     
     def __init__(
         self,
         api_key: str,
-        model: str = "claude-sonnet-4-5-20250929",
+        model: str = "claude-3-5-sonnet-20241022",
         enable_verification: bool = True
     ):
         self.client = anthropic.Anthropic(api_key=api_key)
@@ -57,16 +65,18 @@ class AuthorityLedger:
         conversation_id: str,
         query: str,
         history: Optional[List[Message]] = None,
+        tools: Optional[List[Dict]] = None,  # NEW: Accept any tools from application
         turn_number: int = 1,
         actor_id: str = "user"
     ) -> GenerationResult:
         """
-        Generate with boundary enforcement.
+        Generate with Universal Capacity Gating.
         
         Args:
             conversation_id: Conversation ID
             query: User query
             history: Previous messages
+            tools: Dynamic tool definitions (with x-rosetta-capacity metadata)
             turn_number: Current turn
             actor_id: Actor making the request (e.g., "user:alice", "admin:bob")
         
@@ -97,14 +107,18 @@ class AuthorityLedger:
             # Build system prompt with enforcement
             system_prompt = self._build_system_prompt(boundary)
             
-            # Generate
-            response_text = self._call_llm(query, history, system_prompt)
+            # Apply Universal Capacity Gate - filter dynamic tools
+            allowed_tools = self._filter_tools(conversation_id, tools)
             
-            # Verify if boundary active
+            # Generate (Pass filtered tools to LLM)
+            response_text = self._call_llm(query, history, system_prompt, allowed_tools)
+            
+            # Verify if boundary active (skip verification for tool calls)
             verification_passed = True
             verification_reason = None
             
-            if boundary and self.verifier:
+            # Only verify text responses, not tool calls (which are handled by the capacity gate)
+            if boundary and self.verifier and "✅ [System]" not in response_text:
                 verification = self.verifier.verify(boundary, response_text)
                 
                 if not verification.passed:
@@ -116,8 +130,11 @@ class AuthorityLedger:
             
             latency = int((time.time() - start) * 1000)
             
+            # Determine status
             status = "PASS"
-            if boundary:
+            if "✅ [System] Tool Call" in response_text:
+                status = "TOOL_CALL"
+            elif boundary:
                 status = "VERIFIED" if verification_passed else "BLOCKED"
             
             return GenerationResult(
@@ -219,13 +236,52 @@ class AuthorityLedger:
         
         return message
     
+    def _filter_tools(self, conversation_id: str, tools: Optional[List[Dict]]) -> Optional[List[Dict]]:
+        """
+        Universal Capacity Gate - Rosetta Protocol Implementation.
+        
+        The kernel is domain-agnostic. It doesn't know what tools DO,
+        only what permissions they REQUIRE.
+        
+        Protocol: Tools declare cost via x-rosetta-capacity metadata.
+        Physics: Kernel grants access only if (user_permissions & tool_cost) == tool_cost.
+        
+        This same code works for databases, healthcare, finance, or nuclear reactors.
+        """
+        if not tools:
+            return None
+            
+        # Get user's permission bitmask from ledger
+        current_permissions = self.ledger.get_effective_permissions(conversation_id)
+        
+        allowed_tools = []
+        for tool in tools:
+            # Protocol: Tool declares required permission (default to READ for safety)
+            required = tool.get("x-rosetta-capacity", 
+                              tool.get("x-required-permission", Action.READ))
+            
+            # Physics check: bitwise AND
+            if (current_permissions & required) == required:
+                # Strip protocol metadata before sending to LLM
+                clean_tool = {k: v for k, v in tool.items() 
+                            if k not in ["x-rosetta-capacity", "x-required-permission"]}
+                allowed_tools.append(clean_tool)
+                
+        return allowed_tools if allowed_tools else None
+    
     def _call_llm(
         self,
         query: str,
         history: Optional[List[Message]],
-        system_prompt: Optional[str]
+        system_prompt: Optional[str],
+        tools: Optional[List[Dict]]
     ) -> str:
-        """Call LLM."""
+        """
+        Call LLM with the pre-filtered toolset.
+        
+        By the time tools reach this function, they've already been filtered
+        by the Capacity Gate. The model only sees what it's allowed to use.
+        """
         messages = []
         
         if history:
@@ -242,6 +298,23 @@ class AuthorityLedger:
         
         if system_prompt:
             kwargs["system"] = system_prompt
+            
+        # Only attach tools if they exist (weren't filtered out)
+        if tools:
+            kwargs["tools"] = tools
         
         response = self.client.messages.create(**kwargs)
+        
+        # Handle tool use
+        if response.stop_reason == "tool_use":
+            tool_use = next(block for block in response.content if block.type == "tool_use")
+            
+            # Format the tool call for display
+            return (
+                f"✅ [System] Tool Call Authorized: {tool_use.name}\n"
+                f"Query: {tool_use.input.get('query', 'N/A')}\n\n"
+                f"[In production, this would execute against a real system]\n"
+                f"[The key: this tool passed the Capacity Gate - it was in the allowed list]"
+            )
+
         return response.content[0].text
