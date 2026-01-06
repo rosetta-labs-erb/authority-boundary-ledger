@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![Code style: clean](https://img.shields.io/badge/code%20style-clean-brightgreen.svg)](https://github.com/yourusername/authority-boundary-ledger)
+[![Code style: clean](https://img.shields.io/badge/code%20style-clean-brightgreen.svg)](https://github.com/rosetta-labs-erb/authority-boundary-ledger)
 
 **A universal governance kernel for capability control in LLM systems.**
 
@@ -247,7 +247,7 @@ Architecture is LLM-agnostic. Current implementation uses Anthropic API, but eas
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/authority-boundary-ledger.git
+git clone https://github.com/rosetta-labs-erb/authority-boundary-ledger.git
 cd authority-boundary-ledger
 
 # Set API key
@@ -266,7 +266,7 @@ The script will:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/authority-boundary-ledger.git
+git clone https://github.com/rosetta-labs-erb/authority-boundary-ledger.git
 cd authority-boundary-ledger
 
 # Install dependencies
@@ -283,7 +283,7 @@ python demo_database.py
 
 ```bash
 # Clone and install
-git clone https://github.com/yourusername/authority-boundary-ledger.git
+git clone https://github.com/rosetta-labs-erb/authority-boundary-ledger.git
 cd authority-boundary-ledger
 pip install -e .
 
@@ -689,20 +689,8 @@ This primitive bridges that gap.
 
 Questions? Feedback? Production use cases?
 
-- GitHub Issues: [Issues](https://github.com/yourusername/authority-boundary-ledger/issues)
-- Email: your@email.com
-- LinkedIn: [Your Profile](https://linkedin.com/in/yourprofile)
+- GitHub Issues: [Issues](https://github.com/rosetta-labs-erb/authority-boundary-ledger/issues)
+- Email: cameronsemple@gmail.com
+- LinkedIn: [Cameron Semple](https://linkedin.com/in/csemple)
 
 ---
-
-## Acknowledgments
-
-This work exists because reviewers correctly identified that the **ledger abstraction**—not the enforcement mechanism—is the core contribution.
-
-The insight: "Boundaries are state, not just tokens."
-
-That reframing transformed this from a demo into a primitive.
-
----
-
-**Authority Boundary Ledger: Making AI systems governable, one boundary at a time.**
