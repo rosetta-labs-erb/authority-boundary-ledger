@@ -52,7 +52,7 @@ class AuthorityLedger:
     def __init__(
         self,
         api_key: str,
-        model: str = "claude-sonnet-4-5",  # PATCHED: Updated to Claude 4.5
+        model: str = "claude-sonnet-4-5", 
         enable_verification: bool = True
     ):
         self.client = anthropic.Anthropic(api_key=api_key)
@@ -86,11 +86,6 @@ class AuthorityLedger:
         start = time.time()
         
         try:
-            # PATCH 3: REMOVED MAGIC RELEASE DETECTION
-            # In v2.0, all boundary releases must be via explicit API calls.
-            # "Magic detection" from text was a security flaw (privilege escalation via text triggers).
-            # If you want chat-based release for demos, implement a 'request_elevation' tool
-            # that the model can explicitly call. This reinforces "Code is Law."
             
             # Get active boundary
             boundary = self.ledger.get(conversation_id)
@@ -108,11 +103,6 @@ class AuthorityLedger:
             
             # If security block occurred, return immediately
             if security_blocked:
-                # PATCH 4: LOG SECURITY VIOLATION TO AUDIT TRAIL
-                # This is CRITICAL for governance. The blog post promises:
-                # "Turn silent failures into explicit, auditable events."
-                # Without this log, admins never know an attack was attempted.
-                # The attack is blocked (good) but hidden (bad governance).
                 self.ledger.log_violation(
                     conversation_id=conversation_id,
                     violation_type="TOOL_INJECTION_ATTEMPT",
@@ -302,14 +292,7 @@ class AuthorityLedger:
             kwargs["tools"] = allowed_tools
         
         response = self.client.messages.create(**kwargs)
-        
-        # PATCH 1: FIX PARALLEL TOOL SECURITY VULNERABILITY
-        # Handle tool use with comprehensive security check for ALL tool calls
         if response.stop_reason == "tool_use":
-            # PATCH 5: PRESERVE CHAIN OF THOUGHT (UX FIX)
-            # Modern models often generate explanatory text BEFORE tool calls.
-            # Example: "I'll query the database..." [then calls sql_select]
-            # Old code discarded this text. New code preserves it for transparency.
             cot_text = []
             for block in response.content:
                 if block.type == "text":
