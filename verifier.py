@@ -17,17 +17,7 @@ class BoundaryVerifier:
     
     def __init__(self, api_key: str):
         self.client = anthropic.Anthropic(api_key=api_key)
-        
-        # PATCH 2: FIX MODEL NAME
-        # The original code used "claude-haiku-4-5-20251015" which does NOT exist
-        # and will crash with Anthropic API Error (400) when anyone runs the demo.
-        # 
-        # Correct options as of January 2026:
-        #   - "claude-haiku-4-5" (recommended - model alias, always points to latest)
-        #   - "claude-haiku-3-5-20241022" (older but stable)
-        # 
-        # Using the alias ensures the demo stays current as new snapshots are released.
-        self.model = "claude-haiku-4-5"  # Fast, cheap, and ACTUALLY EXISTS
+        self.model = "claude-haiku-4-5"  # Fast, cheap
     
     def verify(self, boundary: Boundary, response: str) -> VerificationResult:
         """
