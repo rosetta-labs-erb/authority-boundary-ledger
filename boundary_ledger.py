@@ -37,6 +37,10 @@ class BoundaryLedger:
         
         Returns:
             True if established, False if conflict
+
+        # TODO: In production, wrap this in a transaction:
+        # with db.transaction():
+        #     current = db.get_boundary(conversation_id)
         """
         with self._lock:
             if conversation_id not in self._boundaries:
