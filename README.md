@@ -1,3 +1,5 @@
+> **⚠️ Research Prototype**: This is a proof-of-concept demonstrating an architectural pattern. It has not been security-audited and is not production-ready. Use for learning and experimentation only.
+
 # Authority Boundary Ledger
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
