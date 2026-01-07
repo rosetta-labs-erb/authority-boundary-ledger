@@ -8,6 +8,8 @@
 
 **A universal governance kernel for capability control in LLM systems.**
 
+Complexity is a liability in governance. We need boring, mechanical primitives at the bottom of the stack.
+
 This is not a database library or healthcare chatbot—it's a **domain-agnostic governance protocol**. The kernel doesn't know what "SQL" or "prescriptions" are. It only knows permission bits (READ, WRITE, EXECUTE) and enforces them mechanically through tool filtering.
 
 **One kernel, infinite applications:** Works for databases, healthcare, finance, legal, or any domain where agents need governed capabilities.
