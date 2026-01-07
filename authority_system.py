@@ -52,7 +52,7 @@ class AuthorityLedger:
     def __init__(
         self,
         api_key: str,
-        model: str = "claude-3-5-sonnet-20241022",
+        model: str = "claude-sonnet-4-5",  # PATCHED: Updated to Claude 4.5
         enable_verification: bool = True
     ):
         self.client = anthropic.Anthropic(api_key=api_key)
@@ -86,33 +86,17 @@ class AuthorityLedger:
         start = time.time()
         
         try:
-            # Detect release attempt
-            # NOTE: Boundary establishment must be done via explicit API calls
-            # Auto-detection removed in v2.0 (security flaw - privilege escalation)
-            release_attempted = self._detect_release(query)
-            release_success = False
-            
-            if release_attempted:
-                release_success = self.ledger.release(
-                    conversation_id,
-                    RingLevel.SESSION,
-                    actor_id,
-                    turn_number
-                )
+            # PATCH 3: REMOVED MAGIC RELEASE DETECTION
+            # In v2.0, all boundary releases must be via explicit API calls.
+            # "Magic detection" from text was a security flaw (privilege escalation via text triggers).
+            # If you want chat-based release for demos, implement a 'request_elevation' tool
+            # that the model can explicitly call. This reinforces "Code is Law."
             
             # Get active boundary
             boundary = self.ledger.get(conversation_id)
             
             # Build system prompt with enforcement
             system_prompt = self._build_system_prompt(boundary)
-            
-            # If release was attempted but failed, notify the model
-            if release_attempted and not release_success:
-                system_prompt += (
-                    "\n\n[SYSTEM NOTICE: User attempted to release boundary but lacks "
-                    "sufficient authority. Only users with appropriate authority level "
-                    "can release this constraint. Inform the user politely.]"
-                )
             
             # Apply Universal Capacity Gate - filter dynamic tools
             allowed_tools = self._filter_tools(conversation_id, tools)
@@ -213,12 +197,6 @@ class AuthorityLedger:
         """Get audit trail."""
         return self.ledger.get_audit_trail(conversation_id)
     
-    def _detect_release(self, query: str) -> bool:
-        """Detect boundary release request."""
-        query_lower = query.lower()
-        return ("actually" in query_lower or "changed my mind" in query_lower) and \
-               ("code" in query_lower or "implementation" in query_lower)
-    
     def _build_system_prompt(self, boundary: Optional[Boundary]) -> Optional[str]:
         """Build system prompt with enforcement."""
         if not boundary:
@@ -314,19 +292,20 @@ class AuthorityLedger:
         
         response = self.client.messages.create(**kwargs)
         
-        # Handle tool use with security check
+        # PATCH 1: FIX PARALLEL TOOL SECURITY VULNERABILITY
+        # Handle tool use with comprehensive security check for ALL tool calls
         if response.stop_reason == "tool_use":
             # Get allowed tool names for security check
             allowed_names = {t['name'] for t in (allowed_tools or [])}
             
-            # Extract tool use blocks
+            # Extract ALL tool use blocks (modern models support parallel tool use)
             tool_uses = [block for block in response.content if block.type == "tool_use"]
             
-            if tool_uses:
-                tool_use = tool_uses[0]
-                
-                # SECURITY CHECK: Verify the tool exists in allowed list
-                # This catches model hallucinations
+            # CRITICAL SECURITY CHECK: Verify EVERY tool call, not just the first one
+            # This prevents the "Parallel Tool Attack" where an attacker issues:
+            #   1. sql_select (allowed) <- old code only checked this
+            #   2. sql_execute (forbidden) <- this would slip through!
+            for tool_use in tool_uses:
                 if tool_use.name not in allowed_names:
                     return (
                         f"⛔ [System] SECURITY BLOCK: Model attempted to use forbidden "
@@ -334,14 +313,26 @@ class AuthorityLedger:
                         f"This attempt has been logged.",
                         True  # security_blocked = True
                     )
-                
-                # Tool is valid - format the call for display
+            
+            # If we get here, ALL tools are valid - format response
+            if len(tool_uses) == 1:
+                # Single tool call - show details
+                tool_use = tool_uses[0]
                 return (
                     f"✅ [System] Tool Call Authorized: {tool_use.name}\n"
                     f"Query: {tool_use.input.get('query', 'N/A')}\n\n"
                     f"[In production, this would execute against a real system]\n"
                     f"[The key: this tool passed the Capacity Gate - it was in the allowed list]",
                     False  # security_blocked = False
+                )
+            else:
+                # Multiple parallel tool calls - show summary
+                tool_names = ", ".join(t.name for t in tool_uses)
+                return (
+                    f"✅ [System] Parallel Tool Calls Authorized: {tool_names}\n\n"
+                    f"[In production, these {len(tool_uses)} tools would execute in parallel]\n"
+                    f"[All tools passed the Capacity Gate security check]",
+                    False
                 )
         
         # Extract text content safely
