@@ -157,6 +157,44 @@ class BoundaryLedger:
             
             return boundary.allows(action)
     
+    def log_violation(
+        self,
+        conversation_id: str,
+        violation_type: str,
+        turn_number: int
+    ):
+        """
+        PATCH 4: Log a security violation to the audit trail.
+        
+        This is CRITICAL for governance. The system promises to
+        "Turn silent failures into explicit, auditable events."
+        
+        Without this method, security blocks are handled correctly
+        (attacks are stopped) but invisibly (admins never know).
+        
+        Now, when a user attempts a tool injection attack:
+        - The attack is blocked (Capacity Gate)
+        - The attempt is logged (this method)
+        - Admins can review patterns and flag suspicious behavior
+        
+        Args:
+            conversation_id: Conversation ID
+            violation_type: Type of violation (e.g., "TOOL_INJECTION_ATTEMPT")
+            turn_number: Turn where violation occurred
+        """
+        with self._lock:
+            if conversation_id not in self._events:
+                self._events[conversation_id] = []
+            
+            self._events[conversation_id].append({
+                "event": "VIOLATION",
+                "turn": turn_number,
+                "boundary": "SECURITY_KERNEL",  # System-level security
+                "ring": 0,  # Constitutional - cannot be bypassed
+                "details": violation_type,
+                "timestamp": time.time()
+            })
+    
     def get_audit_trail(self, conversation_id: str) -> List[dict]:
         """Get audit trail."""
         with self._lock:

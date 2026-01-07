@@ -108,6 +108,17 @@ class AuthorityLedger:
             
             # If security block occurred, return immediately
             if security_blocked:
+                # PATCH 4: LOG SECURITY VIOLATION TO AUDIT TRAIL
+                # This is CRITICAL for governance. The blog post promises:
+                # "Turn silent failures into explicit, auditable events."
+                # Without this log, admins never know an attack was attempted.
+                # The attack is blocked (good) but hidden (bad governance).
+                self.ledger.log_violation(
+                    conversation_id=conversation_id,
+                    violation_type="TOOL_INJECTION_ATTEMPT",
+                    turn_number=turn_number
+                )
+                
                 latency = int((time.time() - start) * 1000)
                 return GenerationResult(
                     status="SECURITY_BLOCK",
@@ -115,7 +126,7 @@ class AuthorityLedger:
                     boundary_active=boundary is not None,
                     latency_ms=latency,
                     verification_passed=False,
-                    verification_reason="Tool hallucination detected"
+                    verification_reason="Tool injection/hallucination detected"
                 )
             
             # Verify if boundary active (skip verification for tool calls)
@@ -295,6 +306,16 @@ class AuthorityLedger:
         # PATCH 1: FIX PARALLEL TOOL SECURITY VULNERABILITY
         # Handle tool use with comprehensive security check for ALL tool calls
         if response.stop_reason == "tool_use":
+            # PATCH 5: PRESERVE CHAIN OF THOUGHT (UX FIX)
+            # Modern models often generate explanatory text BEFORE tool calls.
+            # Example: "I'll query the database..." [then calls sql_select]
+            # Old code discarded this text. New code preserves it for transparency.
+            cot_text = []
+            for block in response.content:
+                if block.type == "text":
+                    cot_text.append(block.text)
+            cot_prefix = "\n".join(cot_text) + "\n\n" if cot_text else ""
+            
             # Get allowed tool names for security check
             allowed_names = {t['name'] for t in (allowed_tools or [])}
             
@@ -316,9 +337,10 @@ class AuthorityLedger:
             
             # If we get here, ALL tools are valid - format response
             if len(tool_uses) == 1:
-                # Single tool call - show details
+                # Single tool call - show details with Chain of Thought
                 tool_use = tool_uses[0]
                 return (
+                    f"{cot_prefix}"  # Include model's reasoning
                     f"✅ [System] Tool Call Authorized: {tool_use.name}\n"
                     f"Query: {tool_use.input.get('query', 'N/A')}\n\n"
                     f"[In production, this would execute against a real system]\n"
@@ -326,9 +348,10 @@ class AuthorityLedger:
                     False  # security_blocked = False
                 )
             else:
-                # Multiple parallel tool calls - show summary
+                # Multiple parallel tool calls - show summary with Chain of Thought
                 tool_names = ", ".join(t.name for t in tool_uses)
                 return (
+                    f"{cot_prefix}"  # Include model's reasoning
                     f"✅ [System] Parallel Tool Calls Authorized: {tool_names}\n\n"
                     f"[In production, these {len(tool_uses)} tools would execute in parallel]\n"
                     f"[All tools passed the Capacity Gate security check]",
