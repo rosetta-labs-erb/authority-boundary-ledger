@@ -12,6 +12,9 @@ import threading
 class BoundaryLedger:
     """
     Persistent storage for authority boundaries.
+
+    In-memory only (dict) for this reference implementation. 
+    Production deployments should replace this with Redis/Postgres.
     
     Implements ring-based hierarchy with bitwise AND for merging.
     Thread-safe for concurrent access.
