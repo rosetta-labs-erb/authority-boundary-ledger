@@ -613,6 +613,8 @@ This reference implementation shows **the pattern**, not production infrastructu
 
 ## Why This Matters
 
+This primitive separates Model Agency from User Agency, clarifying liability chains.
+
 ### For Institutional AI Adoption
 
 High-stakes organizations (healthcare, finance, government, legal) cannot deploy systems that:
