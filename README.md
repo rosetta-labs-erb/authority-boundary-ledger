@@ -1,4 +1,4 @@
-> **⚠️ Research Prototype**: This is a proof-of-concept demonstrating an architectural pattern. It has not been security-audited and is not production-ready. Use for learning and experimentation only.
+> **⚠️ Research Prototype**: This is a proof-of-concept demonstrating an architectural pattern. It has not been security-audited and is not production-ready. Use for learning and experimentation only. This is a reference kernel pattern, not a drop‑in library intended for direct production use.
 
 # Authority Boundary Ledger
 
@@ -112,7 +112,7 @@ result = system.generate(
 **Step 3: Physics Enforces**
 - If user has READ_ONLY: `sql_execute` is physically removed before API call
 - Model cannot call tools it cannot see
-- No prompt injection can bypass this
+- No prompt injection can cause the model to invoke a tool it cannot see.
 
 ### Why This Is Universal
 
@@ -177,7 +177,7 @@ Essential for regulated environments (healthcare, finance, government, legal).
    - Blocks and logs any violations that slip through
    - Only needed for non-tool interactions
 
-Together: **99%+ enforcement accuracy** with mechanical guarantees.
+Together: **high enforcement accuracy** with mechanical guarantees.
 
 ### 🔧 Works With Any LLM
 
