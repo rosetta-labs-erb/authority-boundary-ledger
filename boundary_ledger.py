@@ -7,18 +7,21 @@ The missing primitive: persistent authority constraints.
 from typing import Optional, Dict, List
 from boundary_types import Boundary, RingLevel, Action, create_boundary
 import time
+import threading
 
 class BoundaryLedger:
     """
     Persistent storage for authority boundaries.
     
     Implements ring-based hierarchy with bitwise AND for merging.
+    Thread-safe for concurrent access.
     """
     
     def __init__(self):
         # conversation_id → {ring_level → boundary}
         self._boundaries: Dict[str, Dict[RingLevel, Boundary]] = {}
         self._events: Dict[str, List[dict]] = {}
+        self._lock = threading.RLock()  # Thread safety for production
     
     def establish(
         self,
@@ -32,24 +35,25 @@ class BoundaryLedger:
         Returns:
             True if established, False if conflict
         """
-        if conversation_id not in self._boundaries:
-            self._boundaries[conversation_id] = {}
-        
-        rings = self._boundaries[conversation_id]
-        
-        # Check for conflicts with higher rings
-        for ring, existing in rings.items():
-            if ring.value < boundary.ring_level.value:
-                # Higher ring exists - check conflict
-                if (existing.allowed_actions & boundary.allowed_actions) == Action.NONE:
-                    return False  # Incompatible
-        
-        # No conflict - establish
-        rings[boundary.ring_level] = boundary
-        
-        self._log_event(conversation_id, "establish", boundary, turn_number)
-        
-        return True
+        with self._lock:
+            if conversation_id not in self._boundaries:
+                self._boundaries[conversation_id] = {}
+            
+            rings = self._boundaries[conversation_id]
+            
+            # Check for conflicts with higher rings
+            for ring, existing in rings.items():
+                if ring.value < boundary.ring_level.value:
+                    # Higher ring exists - check conflict
+                    if (existing.allowed_actions & boundary.allowed_actions) == Action.NONE:
+                        return False  # Incompatible
+            
+            # No conflict - establish
+            rings[boundary.ring_level] = boundary
+            
+            self._log_event(conversation_id, "establish", boundary, turn_number)
+            
+            return True
     
     def get(self, conversation_id: str) -> Optional[Boundary]:
         """
@@ -58,19 +62,36 @@ class BoundaryLedger:
         Returns:
             Merged boundary or None
         """
-        if conversation_id not in self._boundaries:
-            return None
+        with self._lock:
+            if conversation_id not in self._boundaries:
+                return None
+            
+            boundaries = list(self._boundaries[conversation_id].values())
+            
+            if not boundaries:
+                return None
+            
+            if len(boundaries) == 1:
+                return boundaries[0]
+            
+            # Merge via bitwise AND
+            return self._merge(boundaries)
+    
+    def get_effective_permissions(self, conversation_id: str) -> Action:
+        """
+        Get effective permission bitmask for conversation.
         
-        boundaries = list(self._boundaries[conversation_id].values())
-        
-        if not boundaries:
-            return None
-        
-        if len(boundaries) == 1:
-            return boundaries[0]
-        
-        # Merge via bitwise AND
-        return self._merge(boundaries)
+        Returns:
+            Action bitmask (defaults to ALL if no boundaries)
+        """
+        with self._lock:
+            boundary = self.get(conversation_id)
+            
+            # Default to ALL if no boundary exists
+            if not boundary:
+                return Action.ALL
+            
+            return boundary.allowed_actions
     
     def _merge(self, boundaries: List[Boundary]) -> Boundary:
         """Merge boundaries using bitwise AND."""
@@ -104,39 +125,42 @@ class BoundaryLedger:
         Returns:
             True if released, False if insufficient authority
         """
-        if conversation_id not in self._boundaries:
-            return False
-        
-        rings = self._boundaries[conversation_id]
-        
-        if ring_level not in rings:
-            return False
-        
-        boundary = rings[ring_level]
-        
-        # Check authority
-        if not boundary.can_be_released_by(authority):
-            return False
-        
-        # Release
-        del rings[ring_level]
-        
-        self._log_event(conversation_id, "release", boundary, turn_number)
-        
-        return True
+        with self._lock:
+            if conversation_id not in self._boundaries:
+                return False
+            
+            rings = self._boundaries[conversation_id]
+            
+            if ring_level not in rings:
+                return False
+            
+            boundary = rings[ring_level]
+            
+            # Check authority
+            if not boundary.can_be_released_by(authority):
+                return False
+            
+            # Release
+            del rings[ring_level]
+            
+            self._log_event(conversation_id, "release", boundary, turn_number)
+            
+            return True
     
     def can_perform(self, conversation_id: str, action: Action) -> bool:
         """Check if action is allowed."""
-        boundary = self.get(conversation_id)
-        
-        if not boundary:
-            return True  # No boundaries
-        
-        return boundary.allows(action)
+        with self._lock:
+            boundary = self.get(conversation_id)
+            
+            if not boundary:
+                return True  # No boundaries
+            
+            return boundary.allows(action)
     
     def get_audit_trail(self, conversation_id: str) -> List[dict]:
         """Get audit trail."""
-        return self._events.get(conversation_id, [])
+        with self._lock:
+            return self._events.get(conversation_id, []).copy()
     
     def _log_event(
         self,
@@ -145,7 +169,7 @@ class BoundaryLedger:
         boundary: Boundary,
         turn_number: int
     ):
-        """Log event."""
+        """Log event (must be called within lock)."""
         if conversation_id not in self._events:
             self._events[conversation_id] = []
         
