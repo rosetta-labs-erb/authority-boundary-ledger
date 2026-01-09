@@ -251,7 +251,7 @@ For example: like reifying "medical advice" into a privileged tool, we can reify
 Imagine a home robot with a `heavy_lift` capability (allowing force \> 100N).
 
 * **If the User is a Parent:** The `heavy_lift` and `move_furniture` tools are available. The robot can move the couch.  
-* **If the User is a Child:** The Capacity Gate removes the tools. The robot physically lacks the instruction set to apply dangerous force.
+* **If the User is a Child:** The Capacity Gate removes the tools. The robot physically lacks the instruction set to apply dangerous force, or perform unwanted actions.
 
 It doesn't matter if the child asks nicely or tricks the LLM. Without the tool, the robot is mechanically limited to "safe" force levels. **It doesn't ask the robot to be gentle; it removes the capacity to be strong.**
 
