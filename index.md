@@ -246,7 +246,7 @@ The key innovation is the architectural pattern—using tool availability as a g
 
 **The pattern generalizes to robotics.**
 
-For example, like reifying "medical advice" into a privileged tool, we can reify **physical force, or tasks,** into privileged tools.
+For example: like reifying "medical advice" into a privileged tool, we can reify **physical force, or tasks,** into privileged tools.
 
 Imagine a home robot with a `heavy_lift` capability (allowing force \> 100N).
 
