@@ -244,6 +244,17 @@ When a patient asks for a diagnosis, the model tries to comply. It looks for the
 
 The key innovation is the architectural pattern—using tool availability as a governance mechanism—not perfect enforcement. The same pattern applies to legal, government, and any system where authority must be defensible.
 
+**The pattern generalizes to robotics.**
+
+For example, like reifying "medical advice" into a privileged tool, we can reify **physical force, or tasks,** into privileged tools.
+
+Imagine a home robot with a `heavy_lift` capability (allowing force \> 100N).
+
+* **If the User is a Parent:** The `heavy_lift` and `move_furniture` tools are available. The robot can move the couch.  
+* **If the User is a Child:** The Capacity Gate removes the tools. The robot physically lacks the instruction set to apply dangerous force.
+
+It doesn't matter if the child asks nicely or tricks the LLM. Without the tool, the robot is mechanically limited to "safe" force levels. **It doesn't ask the robot to be gentle; it removes the capacity to be strong.**
+
 ---
 
 ### **Scenario: Database Agent with Ring 1 Constraint**
