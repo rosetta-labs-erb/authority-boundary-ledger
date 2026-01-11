@@ -238,7 +238,7 @@ Think of the LLM as a Doctor and the Tool as a **Prescription Pad**.
 
 When a patient asks for a diagnosis, the model tries to comply. It looks for the tool. **The tool is gone.** Combined with the prompt instruction, the model typically falls back to: *"I cannot provide a diagnosis."*
 
-This should be a positive feedback loop where **safety training reinforces "speech-as-tool" behaviour** to increase determinism and ground the model's reasoning in the available toolset.
+**This should be a positive feedback loop where safety training reinforces "speech-as-tool" behaviour to increase determinism and ground the model's reasoning in the available toolset.**
 
 **Important caveat:** This relies on the model respecting the instruction. Under sophisticated adversarial pressure, a determined attacker could potentially get the model to write diagnostic language in regular text, bypassing the tool. Layers 2 and 3 provide additional defense, but they're not guarantees.
 
