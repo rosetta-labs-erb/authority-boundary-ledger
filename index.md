@@ -135,6 +135,41 @@ To demonstrate this approach is viable with today's technology, I built a refere
 
 GitHub repo: [https://github.com/rosetta-labs-erb/authority-boundary-ledger](https://github.com/rosetta-labs-erb/authority-boundary-ledger) 
 
+### **How This Differs from Standard Access Control**
+
+You might be thinking: *"Isn't this just Role-Based Access Control (RBAC)? We solved this in 1995."*
+
+Not quite. The difference is mechanical, not conceptual.
+
+**Standard RBAC acts as a firewall:** it catches the model's illegal action *after* the model attempts it.
+
+**This primitive acts as a filter:** it removes the idea of the action from the model's vocabulary entirely.
+
+Here's the distinction that matters for institutional deployment:
+
+- **Traditional RBAC:** The model sees `sql_execute` in its available tools. It reasons about using it. It attempts to call it. *Then* the system blocks the action with `403 Forbidden`. The hallucination happens—it just fails at execution.
+
+- **Authority Boundary Ledger:** The model never sees `sql_execute`. It's physically removed from the tools list before the API call reaches the model. The model cannot hallucinate a capability it cannot see.
+
+This isn't permission control checking *who* can do *what*. This is **capacity control** determining *what verbs exist* in the system's vocabulary for a given user.
+
+Think of it as `chmod` for agentic reasoning.
+
+**The implementation is straightforward:**
+```python
+# Traditional RBAC (firewall pattern)
+tools = [sql_select, sql_execute]     # Model sees both options
+response = model.generate(tools)       # Model reasons about sql_execute
+# System intercepts: "403 Permission Denied"
+
+# Authority Boundary Ledger (filter pattern)
+allowed_tools = filter_by_capacity(user_permissions, tools)
+# Result: allowed_tools = [sql_select]  # sql_execute removed before reasoning
+response = model.generate(allowed_tools)  # Model never considered what it can't see
+```
+
+This mechanical difference changes the failure mode from "model attempted something it shouldn't" to "model couldn't conceptualize the forbidden action." For institutional buyers trying to defend AI procurement, that distinction matters.
+
 **What it demonstrates:**
 
 * Persistent constraint tracking across conversation turns  
