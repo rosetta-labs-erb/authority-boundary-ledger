@@ -466,6 +466,7 @@ This is not required for the core pattern to work, but would significantly reduc
 ---
 
 For those working on institutional adoption of AI systems, I'm documenting the patterns I've seen across high-stakes environments. You can find me on [LinkedIn](https://www.linkedin.com/in/csemple/) or reach out directly [cameronsemple@gmail.com](mailto:cameronsemple@gmail.com).
+
 **Code:** [github.com/rosetta-labs-erb/authority-boundary-ledger](https://github.com/rosetta-labs-erb/authority-boundary-ledger)
 
 ---
