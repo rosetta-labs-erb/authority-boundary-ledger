@@ -198,19 +198,20 @@ The ***Authority Boundary Ledger*** doesn't know what "SQL" or "medical diagnosi
 ### **How It Works (Universal)**
 
 **Applications define tools with permission requirements:**
+```python
+# Database application  
+db_tools = [  
+    {"name": "sql_select", "x-rosetta-capacity": Action.READ},  
+    {"name": "sql_execute", "x-rosetta-capacity": Action.WRITE}  
+]
 
-\# Database application  
-db\_tools \= \[  
-    {"name": "sql\_select", "x-rosetta-capacity": Action.READ},  
-    {"name": "sql\_execute", "x-rosetta-capacity": Action.WRITE}  
-\]
-
-\# Healthcare application  
-medical\_tools \= \[  
-    {"name": "search\_literature", "x-rosetta-capacity": Action.READ},  
-    {"name": "provide\_diagnosis", "x-rosetta-capacity": Action.WRITE},  
-    {"name": "prescribe\_medication", "x-rosetta-capacity": Action.EXECUTE}  
-\]
+# Healthcare application  
+medical_tools = [  
+    {"name": "search_literature", "x-rosetta-capacity": Action.READ},  
+    {"name": "provide_diagnosis", "x-rosetta-capacity": Action.WRITE},  
+    {"name": "prescribe_medication", "x-rosetta-capacity": Action.EXECUTE}  
+]
+```
 
 **The kernel enforces via tool filtering:**
 
