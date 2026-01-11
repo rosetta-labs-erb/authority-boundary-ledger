@@ -12,7 +12,7 @@
 
 As Head of Product for the Ontario Digital Service, I sat across the table from tech vendors and managed 20 Senior PMs responsible for everything from COVID-19 screening tools to the province's digital identity platform. We built critical services that **could not fail**.
 
-And here's what I learned: **High-stakes institutions can’t buy probabilistic safety.**
+Here's what I learned: **High-stakes institutions can’t buy probabilistic safety.**
 
 We wanted to innovate, but we often couldn't buy the latest tools—not because they weren't impressive, but because they weren't **governable**.
 
@@ -238,7 +238,7 @@ Think of the LLM as a Doctor and the Tool as a **Prescription Pad**.
 
 When a patient asks for a diagnosis, the model tries to comply. It looks for the tool. **The tool is gone.** Combined with the prompt instruction, the model typically falls back to: *"I cannot provide a diagnosis."*
 
-**This should function in mutualism with model-level safety training.**
+**This should function in mutualism with model-level safety training reinforcing the pattern to treat speach acts as tools.**
 
 **Important caveat:** This relies on the model respecting the instruction. Under sophisticated adversarial pressure, a determined attacker could potentially get the model to write diagnostic language in regular text, bypassing the tool. Layers 2 and 3 provide additional defense, but they're not guarantees.
 
