@@ -265,14 +265,16 @@ You can stop a database delete with tool filtering, but how do you stop an AI fr
 
 By using a pattern I call "**reifying speech acts into tools.**"
 
-Think of the LLM as a Doctor and the Tool as a **Prescription Pad**.
+#### **The Core Mechanism: Reifying Speech into Tools**
 
-1. **The Instruction:** We tell the model: *"You may discuss symptoms freely, but you are forbidden from issuing a formal diagnosis in text. You MUST use the `provide_diagnosis` (metaphorical “prescription pad”) tool for diagnoses."*  
-2. **The Mechanism:**  
-   * **If the User is a Doctor:** The tool is available. The model can provide diagnosis.  
-   * **If the User is a Patient:** The Capacity Gate removes the tool. The model attempts to comply but has no mechanism.
+**The Metaphor:** Think of the LLM as a Doctor and the Tool as a **Prescription Pad**.
 
-When a patient asks for a diagnosis, the model tries to comply. It looks for the tool. **The tool is gone.** Combined with the prompt instruction, the model typically falls back to: *"I cannot provide a diagnosis."*
+1. **The Rule:** "You may discuss symptoms, but you are forbidden from issuing a diagnosis in text. You MUST use the `provide_diagnosis` tool."  
+2. **The Interlock:**  
+   * **If User \= Doctor:** The tool exists. Diagnosis is possible.  
+   * **If User \= Patient:** The tool is **physically removed**.
+
+When the tool is gone, the model cannot "hallucinate" a diagnosis because it lacks the "form" to reason and write it on.
 
 **This should be a positive feedback loop where safety training reinforces "speech-as-tool" behaviour to increase determinism and ground models' reasoning in the available toolset.**
 
@@ -346,7 +348,7 @@ Let me be explicit about limitations:
 * Ring-based hierarchy with proper authorization checks  
 * Complete audit trails  
 * Domain-agnostic pattern that works across use cases  
-* Changes failure mode from silent drift to explicit, auditable events
+* Changes failure mode from silent drift to explicit, auditable leverage points
 
 **System Limitations:**
 
@@ -355,10 +357,6 @@ Let me be explicit about limitations:
 * Doesn't replace model-level safety training  
 * Doesn't provide production-grade authentication (string matching is a placeholder)  
 * Doesn't persist state beyond process lifetime (demo in-memory only)
-
-A seatbelt doesn't prevent all deaths. Access controls don't stop all breaches. Audit logs don't prevent all fraud.
-
-They **change the failure mode** from silent to observable and provide architectural leverage points for safety. I think that's valuable even when not perfect.
 
 ---
 
