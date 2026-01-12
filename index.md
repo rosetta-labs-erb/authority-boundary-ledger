@@ -348,15 +348,13 @@ Let me be explicit about limitations:
 * Domain-agnostic pattern that works across use cases  
 * Changes failure mode from silent drift to explicit, auditable events
 
-**What this doesn't achieve:**
+**System Limitations:**
 
 * Doesn't prevent all jailbreaks or sophisticated prompt injection  
 * Doesn't make text-level enforcement deterministic (Layers 2 and 3 are probabilistic)  
 * Doesn't replace model-level safety training  
 * Doesn't provide production-grade authentication (string matching is a placeholder)  
 * Doesn't persist state beyond process lifetime (demo in-memory only)
-
-**The value proposition:** This demonstrates an architectural pattern that makes AI systems more governable by adding a mechanical layer of capability control. It doesn't solve all governance problems, but it addresses one critical gap—the lack of persistent, hierarchical authority state in multi-turn AI interactions.
 
 A seatbelt doesn't prevent all deaths. Access controls don't stop all breaches. Audit logs don't prevent all fraud.
 
@@ -372,33 +370,7 @@ The "smart" problem is largely solved. Current models are incredible, and a bril
 
 However, not everything “brilliant” can be trusted. The “trust problem” still exists and current architecture doesn't provide the primitive governance levers institutional buyers need to defend procurement decisions.
 
-**The pattern I see is that frontier AI companies:**
-
-* Optimize for research talent (model capabilities)  
-* Hire for engineers (infrastructure scale)  
-* Assume product-market fit will come from "better AI"
-
-The real bottleneck seems to be **institutional adoption**, which doesn't come from smarter models—it comes from **systems thinking about trust, accountability, and governance**.
-
-The ***Authority Boundary Ledger*** doesn't solve this completely; it demonstrates **one pattern** that frontier AI companies may use (or something similar) to unlock revenue in regulated industries. This should spark “mutualistic lift,” **unlocking brilliant capability for industry with sustained growth for frontier AI.**
-
 This matters for teams building long‑running agents, enterprise workflows, or AI systems operating under regulatory or fiduciary constraints.
-
----
-
-## **A Skill Gap at the Frontier**
-
-Building governable AI requires a different skillset than building capable AI.
-
-It requires equally smart people who:
-
-* Think in nested systems over software features  
-* Leverage environmental structure to influence behaviour across all scales  
-* Understand institutional decision-making (beyond user needs)  
-* Can translate legal/compliance requirements into technical architecture  
-* Know how to port "essential governance properties" into new paradigms
-
-These people exist, but are currently pushing other frontiers. **That's the gap.**
 
 ---
 
