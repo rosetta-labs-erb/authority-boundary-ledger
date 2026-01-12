@@ -265,7 +265,7 @@ You can stop a database delete with tool filtering, but how do you stop an AI fr
 
 By using a pattern I call "**reifying speech acts into tools.**"
 
-#### **The Core Mechanism: Reifying Speech into Tools**
+#### **The Core Mechanism:**
 
 **The Metaphor:** Think of the LLM as a Doctor and the Tool as a **Prescription Pad**.
 
