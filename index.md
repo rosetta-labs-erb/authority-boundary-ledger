@@ -259,7 +259,7 @@ The reference implementation uses a defense-in-depth approach:
 
 ### **Governing Text: The "Prescription Pad" Pattern**
 
-This pattern sits between deterministic tool filtering and probabilistic prompting. By reifying the speech act into a tool, we create a **mechanical gap**—the model physically cannot find the 'form' to write the prescription on
+This pattern sits between deterministic tool filtering and probabilistic prompting. By treating certain speech patterns as "tools," (legal advice, budget approval or medical diagnosis) we create a **mechanical gap**—the model physically cannot find the 'form' to write the prescription on.
 
 You can stop a database delete with tool filtering, but how do you stop an AI from giving bad advice in text?
 
@@ -271,8 +271,8 @@ By using a pattern I call "**reifying speech acts into tools.**"
 
 1. **The Rule:** "You may discuss symptoms, but you are forbidden from issuing a diagnosis in text. You MUST use the `provide_diagnosis` tool."  
 2. **The Interlock:**  
-   * **If User \= Doctor:** The tool exists. Diagnosis is possible.  
-   * **If User \= Patient:** The tool is **physically removed**.
+   * **If User = Doctor:** The tool exists. Diagnosis is possible.  
+   * **If User = Patient:** The tool is **physically removed**.
 
 When the tool is gone, the model cannot "hallucinate" a diagnosis because it lacks the "form" to reason and write it on.
 
