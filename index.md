@@ -73,7 +73,7 @@ The answer is: *"The model is very good at following instructions, but we can't 
 
 ## **The Missing Primitive: Persistent Authority State**
 
-*By ‘primitive,’ I don’t mean a new model capability—I mean a missing governance layer between probabilistic reasoning and institutional accountability.*
+By ‘primitive,’ I don’t mean a new model capability—I mean a missing governance layer between probabilistic reasoning and institutional accountability.
 
 Here's what I noticed building Ontario's digital infrastructure: We spent enormous effort on **institutional trust mechanisms** that didn't make the product "better" in a traditional sense, but made things **governable**.
 
