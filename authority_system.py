@@ -94,7 +94,7 @@ class AuthorityLedger:
             system_prompt = self._build_system_prompt(boundary)
             
             # Apply Universal Authority Gate - filter dynamic tools
-            allowed_tools = self._filter_tools(conversation_id, tools)
+            allowed_tools = self._filter_tools(conversation_id, tools, actor_id)
             
             # Generate (Pass filtered tools to LLM)
             response_text, security_blocked = self._call_llm(
@@ -220,33 +220,34 @@ class AuthorityLedger:
         
         return message
     
-    def _filter_tools(self, conversation_id: str, tools: Optional[List[Dict]]) -> Optional[List[Dict]]:
+    def _filter_tools(self, conversation_id: str, tools: Optional[List[Dict]], 
+                      actor_id: str = "user") -> Optional[List[Dict]]:
         """
         Universal Authority Gate - Rosetta Protocol Implementation.
-        
-        The kernel is domain-agnostic. It doesn't know what tools DO,
-        only what permissions they REQUIRE.
-        
-        Protocol: Tools declare cost via x-rosetta-authority metadata.
-        Physics: Kernel grants access only if (user_permissions & tool_cost) == tool_cost.
-        
-        This same code works for databases, healthcare, finance, or nuclear reactors.
+        Filters tools based on BOTH conversation AND actor permissions (Intersection).
         """
         if not tools:
             return None
             
-        # Get user's permission bitmask from ledger
-        current_permissions = self.ledger.get_effective_permissions(conversation_id)
+        # 1. Get conversation boundary (The Session's Limits)
+        conv_permissions = self.ledger.get_effective_permissions(conversation_id)
+        
+        # 2. Get actor authority (The User's Limits)
+        # Note: You must implement get_actor_permissions in BoundaryLedger
+        actor_permissions = self.ledger.get_actor_permissions(actor_id)
+        
+        # 3. INTERSECTION: Use MINIMUM of both (most restrictive wins)
+        # If Session=WRITE but User=READ, result is READ.
+        effective_permissions = conv_permissions & actor_permissions
         
         allowed_tools = []
         for tool in tools:
-            # Protocol: Tool declares required authority level (default to READ for safety)
-            # We support 'x-rosetta-authority' as the primary standard
+            # Protocol: Tool declares required authority level
             required = tool.get("x-rosetta-authority", 
                               tool.get("x-required-permission", Action.READ))
             
-            # Physics check: bitwise AND
-            if (current_permissions & required) == required:
+            # Physics check: bitwise AND against EFFECTIVE permissions
+            if (effective_permissions & required) == required:
                 # Strip protocol metadata before sending to LLM
                 clean_tool = {k: v for k, v in tool.items() 
                             if k not in ["x-rosetta-authority", "x-required-permission"]}
