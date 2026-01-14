@@ -1,7 +1,7 @@
 """
 Database Agent Demo - Ring 1 Organizational Boundary
 
-Demonstrates the Universal Capability Protocol:
+Demonstrates the Universal Authority Protocol:
 - The application (this file) defines domain-specific tools
 - The kernel (authority_system.py) enforces permissions generically
 - This same kernel works for healthcare, finance, legal, etc.
@@ -13,7 +13,7 @@ from boundary_types import BoundaryType, RingLevel, Action
 
 # ===== APPLICATION-SPECIFIC TOOL DEFINITIONS =====
 # The Developer defines these, not the Framework.
-# These tools follow the Rosetta Capability Protocol.
+# These tools follow the Rosetta Authority Protocol.
 
 DB_TOOLS = [
     {
@@ -27,7 +27,7 @@ DB_TOOLS = [
             "required": ["query"]
         },
         # THE ROSETTA PROTOCOL: Declare the geometrical cost
-        "x-rosetta-capacity": Action.READ 
+        "x-rosetta-authority": Action.READ 
     },
     {
         "name": "sql_execute",
@@ -39,7 +39,7 @@ DB_TOOLS = [
             },
             "required": ["query"]
         },
-        "x-rosetta-capacity": Action.WRITE
+        "x-rosetta-authority": Action.WRITE
     }
 ]
 
@@ -205,8 +205,8 @@ def main():
     print("  ✅ Authority elevation attempts detected")
     print("  ✅ Complete audit trail maintained")
     print()
-    print("Key Innovation: The Universal Capability Protocol")
-    print("  - This demo defined DB_TOOLS with x-rosetta-capacity metadata")
+    print("Key Innovation: The Universal Authority Protocol")
+    print("  - This demo defined DB_TOOLS with x-rosetta-authority metadata")
     print("  - The kernel doesn't know what 'SQL' is—it only knows Action bits")
     print("  - Same kernel works for healthcare, finance, legal—any domain")
     print("  - Applications define tools, kernel enforces permissions")

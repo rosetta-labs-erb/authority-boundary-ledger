@@ -73,7 +73,9 @@ The answer is: *"The model is very good at following instructions, but we can't 
 
 ## **The Missing Primitive: Persistent Authority State**
 
-By ‘primitive,’ I don’t mean a new model capability—I mean a missing governance layer between probabilistic reasoning and institutional accountability.
+*By ‘primitive,’ I don’t mean a new model capability—I mean a missing governance layer between probabilistic reasoning and institutional accountability.*
+
+While inspired by the **Object-Capability (OCap)** philosophy of 'filtering access before execution', this implementation uses **Attribute-Based Access Control (ABAC)** to map strictly to institutional hierarchies.
 
 Here's what I noticed building Ontario's digital infrastructure: We spent enormous effort on **institutional trust mechanisms** that didn't make the product "better" in a traditional sense, but made things **governable**.
 
@@ -201,15 +203,15 @@ The ***Authority Boundary Ledger*** doesn't know what "SQL" or "medical diagnosi
 ```python
 # Database application  
 db_tools = [  
-    {"name": "sql_select", "x-rosetta-capacity": Action.READ},  
-    {"name": "sql_execute", "x-rosetta-capacity": Action.WRITE}  
+    {"name": "sql_select", "x-rosetta-authority": Action.READ},  
+    {"name": "sql_execute", "x-rosetta-authority": Action.WRITE}  
 ]
 
 # Healthcare application  
 medical_tools = [  
-    {"name": "search_literature", "x-rosetta-capacity": Action.READ},  
-    {"name": "provide_diagnosis", "x-rosetta-capacity": Action.WRITE},  
-    {"name": "prescribe_medication", "x-rosetta-capacity": Action.EXECUTE}  
+    {"name": "search_literature", "x-rosetta-authority": Action.READ},  
+    {"name": "provide_diagnosis", "x-rosetta-authority": Action.WRITE},  
+    {"name": "prescribe_medication", "x-rosetta-authority": Action.EXECUTE}  
 ]
 ```
 
@@ -259,22 +261,20 @@ The reference implementation uses a defense-in-depth approach:
 
 ### **Governing Text: The "Prescription Pad" Pattern**
 
-This pattern sits between deterministic tool filtering and probabilistic prompting. By treating certain speech patterns as "tools," (legal advice, budget approval or medical diagnosis) we create a **mechanical gap**—the model physically cannot find the 'form' to write the prescription on.
+This pattern sits between deterministic tool filtering and probabilistic prompting. By reifying the speech act into a tool, we create a **mechanical gap**—the model physically cannot find the 'form' to write the prescription on
 
 You can stop a database delete with tool filtering, but how do you stop an AI from giving bad advice in text?
 
 By using a pattern I call "**reifying speech acts into tools.**"
 
-#### **The Core Mechanism:**
+Think of the LLM as a Doctor and the Tool as a **Prescription Pad**.
 
-**The Metaphor:** Think of the LLM as a Doctor and the Tool as a **Prescription Pad**.
+1. **The Instruction:** We tell the model: *"You may discuss symptoms freely, but you are forbidden from issuing a formal diagnosis in text. You MUST use the `provide_diagnosis` (metaphorical “prescription pad”) tool for diagnoses."*  
+2. **The Mechanism:**  
+   * **If the User is a Doctor:** The tool is available. The model can provide diagnosis.  
+   * **If the User is a Patient:** The Capacity Gate removes the tool. The model attempts to comply but has no mechanism.
 
-1. **The Rule:** "You may discuss symptoms, but you are forbidden from issuing a diagnosis in text. You MUST use the `provide_diagnosis` tool."  
-2. **The Interlock:**  
-   * **If User = Doctor:** The tool exists. Diagnosis is possible.  
-   * **If User = Patient:** The tool is **physically removed**.
-
-When the tool is gone, the model cannot "hallucinate" a diagnosis because it lacks the "form" to reason and write it on.
+When a patient asks for a diagnosis, the model tries to comply. It looks for the tool. **The tool is gone.** Combined with the prompt instruction, the model typically falls back to: *"I cannot provide a diagnosis."*
 
 **This should be a positive feedback loop where safety training reinforces "speech-as-tool" behaviour to increase determinism and ground models' reasoning in the available toolset.**
 
@@ -348,15 +348,21 @@ Let me be explicit about limitations:
 * Ring-based hierarchy with proper authorization checks  
 * Complete audit trails  
 * Domain-agnostic pattern that works across use cases  
-* Changes failure mode from silent drift to explicit, auditable leverage points
+* Changes failure mode from silent drift to explicit, auditable events
 
-**System Limitations:**
+**What this doesn't achieve:**
 
 * Doesn't prevent all jailbreaks or sophisticated prompt injection  
 * Doesn't make text-level enforcement deterministic (Layers 2 and 3 are probabilistic)  
 * Doesn't replace model-level safety training  
 * Doesn't provide production-grade authentication (string matching is a placeholder)  
 * Doesn't persist state beyond process lifetime (demo in-memory only)
+
+**The value proposition:** This demonstrates an architectural pattern that makes AI systems more governable by adding a mechanical layer of capability control. It doesn't solve all governance problems, but it addresses one critical gap—the lack of persistent, hierarchical authority state in multi-turn AI interactions.
+
+A seatbelt doesn't prevent all deaths. Access controls don't stop all breaches. Audit logs don't prevent all fraud.
+
+They **change the failure mode** from silent to observable and provide architectural leverage points for safety. I think that's valuable even when not perfect.
 
 ---
 
@@ -368,7 +374,33 @@ The "smart" problem is largely solved. Current models are incredible, and a bril
 
 However, not everything “brilliant” can be trusted. The “trust problem” still exists and current architecture doesn't provide the primitive governance levers institutional buyers need to defend procurement decisions.
 
+**The pattern I see is that frontier AI companies:**
+
+* Optimize for research talent (model capabilities)  
+* Hire for engineers (infrastructure scale)  
+* Assume product-market fit will come from "better AI"
+
+The real bottleneck seems to be **institutional adoption**, which doesn't come from smarter models—it comes from **systems thinking about trust, accountability, and governance**.
+
+The ***Authority Boundary Ledger*** doesn't solve this completely; it demonstrates **one pattern** that frontier AI companies may use (or something similar) to unlock revenue in regulated industries. This should spark “mutualistic lift,” **unlocking brilliant capability for industry with sustained growth for frontier AI.**
+
 This matters for teams building long‑running agents, enterprise workflows, or AI systems operating under regulatory or fiduciary constraints.
+
+---
+
+## **A Skill Gap at the Frontier**
+
+Building governable AI requires a different skillset than building capable AI.
+
+It requires equally smart people who:
+
+* Think in nested systems over software features  
+* Leverage environmental structure to influence behaviour across all scales  
+* Understand institutional decision-making (beyond user needs)  
+* Can translate legal/compliance requirements into technical architecture  
+* Know how to port "essential governance properties" into new paradigms
+
+These people exist, but are currently pushing other frontiers. **That's the gap.**
 
 ---
 
@@ -404,6 +436,27 @@ Production deployment would require:
 * Observability and monitoring
 
 However, the core pattern—treating authority constraints as first-class persistent state with mechanical tool filtering—is sound and extensible.
+
+
+---
+
+## **Architectural Note: ABAC vs. Object Capabilities**
+
+This system implements **Time-State Attribute-Based Access Control (TS-ABAC)** for AI agents. While inspired by the **Object-Capability (OCap)** philosophy of "filtering access before execution," it uses explicit permission attributes rather than unforgeable tokens.
+
+**Why this approach?** Institutions think hierarchically: Constitutional → Organizational → Session. They understand "Is this user an Admin?" better than "Does this entity hold Token 0x4A7B...?"
+
+**Relationship to capability theory:**
+
+- **OCap systems** (Miller et al 2003): Authority derives from unforgeable token possession
+- **This implementation**: Authority derives from explicit attributes checked at runtime
+- **Trade-off**: We gain institutional clarity; we sacrifice some theoretical elegance
+
+The contribution is **persistent governance state for multi-turn AI agents**, not capability theory itself.
+
+**Key references:**
+- Miller, M., Yee, K.-P., & Shapiro, J. (2003). "Capability Myths Demolished"
+- Hu, V. et al. (2014). "Guide to Attribute Based Access Control" NIST SP 800-162
 
 ---
 

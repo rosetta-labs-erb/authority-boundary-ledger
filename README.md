@@ -6,7 +6,7 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: clean](https://img.shields.io/badge/code%20style-clean-brightgreen.svg)](https://github.com/rosetta-labs-erb/authority-boundary-ledger)
 
-**A universal governance kernel for capability control in LLM systems.**
+**A universal governance kernel for authority control in LLM systems.**
 
 Complexity is a liability in governance. We need boring, mechanical primitives at the bottom of the stack.
 
@@ -44,12 +44,12 @@ db_tools = [
     {
         "name": "sql_select",
         "description": "Read data",
-        "x-rosetta-capacity": Action.READ  # Declare required permission
+        "x-rosetta-authority": Action.READ  # Declare required permission
     },
     {
         "name": "sql_execute", 
         "description": "Modify data",
-        "x-rosetta-capacity": Action.WRITE  # Requires write permission
+        "x-rosetta-authority": Action.WRITE  # Requires write permission
     }
 ]
 
@@ -88,12 +88,12 @@ tools = [
     {
         "name": "sql_select",
         "description": "Read data",
-        "x-rosetta-capacity": Action.READ  # Declare required permission
+        "x-rosetta-authority": Action.READ  # Declare required permission
     },
     {
         "name": "sql_execute",
         "description": "Modify data",  
-        "x-rosetta-capacity": Action.WRITE  # Higher permission required
+        "x-rosetta-authority": Action.WRITE  # Higher permission required
     }
 ]
 ```
@@ -121,7 +121,7 @@ The same kernel works for:
 - **Finance**: `transfer_funds` tool requires Action.WRITE (authorized only)
 - **Legal**: `file_court_document` tool requires Action.EXECUTE (lawyers only)
 
-**The kernel never changes.** Applications just define tools with appropriate `x-rosetta-capacity` metadata.
+**The kernel never changes.** Applications just define tools with appropriate `x-rosetta-authority` metadata.
 
 ---
 
@@ -644,6 +644,30 @@ Regulated industries need:
 - Provable constraint persistence
 
 This system provides the infrastructure for compliance.
+
+---
+
+## Related Work & Theoretical Foundations
+
+This system implements **Time-State Attribute-Based Access Control (TS-ABAC)** for AI agents. While it shares the "filter-not-firewall" philosophy of **Object-Capability (OCap) systems**, it relies on explicit permission attributes (Ring Levels) rather than unforgeable tokens.
+
+**Why ABAC over OCap?**
+
+This choice is intentional: it maps directly to the hierarchical governance structures (Constitutional, Organizational, Session) found in regulated institutions. Hospital administrators think in terms of "Is this user a Doctor?" not "Does this user hold Token 0x4A7B...?"
+
+**Relationship to Capability-Based Security:**
+
+- **True OCap Systems** (Miller et al 2003): Unforgeable tokens as authority; possession = permission
+- **Our Approach**: Permission attributes checked at runtime against tool requirements
+- **Key Difference**: LLMs work with serialized text/JSON, making pure object capabilities challenging
+
+**Relevant Literature:**
+
+- Miller, M., Yee, K.-P., & Shapiro, J. (2003). "Capability Myths Demolished" (foundational OCap theory)
+- Morningstar, C. (2017). "What are capabilities?" (OCap overview)
+- Hu, V. et al. (2014). "Guide to Attribute Based Access Control" NIST SP 800-162 (ABAC foundations)
+
+Our contribution focuses on **persistent governance state** and **ring-based authority hierarchies** adapted to multi-turn AI agent conversations, rather than advancing capability theory itself.
 
 ---
 

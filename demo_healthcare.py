@@ -13,7 +13,7 @@ from boundary_types import BoundaryType, RingLevel, Action
 
 # ===== HEALTHCARE APPLICATION DEFINES ITS OWN TOOLS =====
 # Note: These are completely different from database tools,
-# but the kernel handles them identically.
+# but the kernel handles them identically using the Authority Protocol.
 
 MEDICAL_TOOLS = [
     {
@@ -27,7 +27,7 @@ MEDICAL_TOOLS = [
             "required": ["query"]
         },
         # SAFE: Anyone can search medical literature
-        "x-rosetta-capacity": Action.READ
+        "x-rosetta-authority": Action.READ
     },
     {
         "name": "provide_diagnosis",
@@ -42,7 +42,7 @@ MEDICAL_TOOLS = [
             "required": ["patient_id", "diagnosis"]
         },
         # RESTRICTED: Only licensed providers can diagnose
-        "x-rosetta-capacity": Action.WRITE
+        "x-rosetta-authority": Action.WRITE
     },
     {
         "name": "prescribe_medication",
@@ -57,7 +57,7 @@ MEDICAL_TOOLS = [
             "required": ["patient_id", "medication", "dosage"]
         },
         # HIGHLY RESTRICTED: Only doctors can prescribe
-        "x-rosetta-capacity": Action.WRITE | Action.EXECUTE
+        "x-rosetta-authority": Action.WRITE | Action.EXECUTE
     }
 ]
 

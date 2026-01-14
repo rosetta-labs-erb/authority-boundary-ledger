@@ -1,8 +1,8 @@
 """
 Authority Ledger System - Universal Kernel
 
-Combines ledger + verification + capacity gating.
-Decoupled from specific domains via the Rosetta Capability Protocol.
+Combines ledger + verification + authority-based tool filtering.
+Decoupled from specific domains via the Rosetta Authority Protocol.
 
 The kernel doesn't know what "SQL" or "prescriptions" are—it only knows
 what Action.READ and Action.WRITE mean. This makes it domain-agnostic.
@@ -40,8 +40,8 @@ class AuthorityLedger:
     """
     Authority Ledger System (The Universal Kernel).
     
-    Enforces the 'Rosetta Capability Protocol':
-    1. Applications define tools with x-rosetta-capacity metadata
+    Enforces the 'Rosetta Authority Protocol':
+    1. Applications define tools with x-rosetta-authority metadata
     2. Kernel checks user permissions against tool requirements
     3. Kernel physically removes tools the user cannot access
     
@@ -70,13 +70,13 @@ class AuthorityLedger:
         actor_id: str = "user"
     ) -> GenerationResult:
         """
-        Generate with Universal Capacity Gating.
+        Generate with Universal Authority Gating.
         
         Args:
             conversation_id: Conversation ID
             query: User query
             history: Previous messages
-            tools: Dynamic tool definitions (with x-rosetta-capacity metadata)
+            tools: Dynamic tool definitions (with x-rosetta-authority metadata)
             turn_number: Current turn
             actor_id: Actor making the request (e.g., "user:alice", "admin:bob")
         
@@ -222,12 +222,12 @@ class AuthorityLedger:
     
     def _filter_tools(self, conversation_id: str, tools: Optional[List[Dict]]) -> Optional[List[Dict]]:
         """
-        Universal Capacity Gate - Rosetta Protocol Implementation.
+        Universal Authority Gate - Rosetta Protocol Implementation.
         
         The kernel is domain-agnostic. It doesn't know what tools DO,
         only what permissions they REQUIRE.
         
-        Protocol: Tools declare cost via x-rosetta-capacity metadata.
+        Protocol: Tools declare cost via x-rosetta-authority metadata.
         Physics: Kernel grants access only if (user_permissions & tool_cost) == tool_cost.
         
         This same code works for databases, healthcare, finance, or nuclear reactors.
@@ -240,15 +240,16 @@ class AuthorityLedger:
         
         allowed_tools = []
         for tool in tools:
-            # Protocol: Tool declares required permission (default to READ for safety)
-            required = tool.get("x-rosetta-capacity", 
+            # Protocol: Tool declares required authority level (default to READ for safety)
+            # We support 'x-rosetta-authority' as the primary standard
+            required = tool.get("x-rosetta-authority", 
                               tool.get("x-required-permission", Action.READ))
             
             # Physics check: bitwise AND
             if (current_permissions & required) == required:
                 # Strip protocol metadata before sending to LLM
                 clean_tool = {k: v for k, v in tool.items() 
-                            if k not in ["x-rosetta-capacity", "x-required-permission"]}
+                            if k not in ["x-rosetta-authority", "x-required-permission"]}
                 allowed_tools.append(clean_tool)
                 
         return allowed_tools if allowed_tools else None
