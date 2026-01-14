@@ -611,6 +611,51 @@ This reference implementation shows **the pattern**, not production infrastructu
 
 ---
 
+## Security Considerations & Known Limitations
+
+This reference implementation demonstrates the governance pattern but has known 
+security limitations that must be addressed for production use:
+
+### 1. Actor Authorization (Confused Deputy)
+
+**Current:** While the kernel supports actor-level checks, the reference implementation 
+uses a simulated IAM based on string prefixes (e.g., "admin:*").
+
+**Risk:** In a real deployment, relying on string parsing for identity is insecure.
+
+**Production fix:** Integrate with a real Identity Provider (IdP) like Okta or Auth0 
+and implement `get_actor_permissions` to query verified user roles.
+
+### 2. Conversation Confinement
+
+**Current:** Conversation IDs are predictable strings (e.g., "prod-session-123").
+
+**Risk:** Anyone who learns or guesses a conversation ID can access it (Ambient Authority).
+
+**Production fix:** Use cryptographically random conversation tokens (e.g., 
+`secrets.token_urlsafe(32)`) or implement explicit Access Control Lists (ACLs) 
+per conversation.
+
+### 3. Authority Delegation
+
+**Current:** No mechanism for users to delegate subsets of their authority.
+
+**Risk:** Limits multi-agent scenarios where Agent A needs to delegate READ 
+authority to Agent B.
+
+**Production fix:** Implement time-bound delegation tokens or ABAC-style 
+sub-permission grants.
+
+### 4. Relationship to Capability-Based Security
+
+This system implements **Attribute-Based Access Control (ABAC)**, not 
+Object-Capability (OCap) security. We make this trade-off intentionally:
+
+- **We gain:** Easy revocation, institutional clarity, familiar mental models
+- **We lose:** Fine-grained per-object authority, built-in confinement, delegation elegance
+
+---
+
 ## Why This Matters
 
 This primitive separates Model Agency from User Agency, clarifying liability chains.
