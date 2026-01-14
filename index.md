@@ -153,7 +153,7 @@ Here's the distinction that matters for institutional deployment:
 
 - **Authority Boundary Ledger:** The model never sees `sql_execute`. It's physically removed from the tools list before the API call reaches the model. The model cannot hallucinate a capability it cannot see.
 
-This isn't permission control checking *who* can do *what*. This is **capacity control** determining *what verbs exist* in the system's vocabulary for a given user.
+This isn't permission control checking *who* can do *what*. This is **authority control** determining *what verbs exist* in the system's vocabulary for a given user.
 
 Think of it as `chmod` for agentic reasoning.
 
@@ -165,7 +165,7 @@ response = model.generate(tools)       # Model reasons about sql_execute
 # System intercepts: "403 Permission Denied"
 
 # Authority Boundary Ledger (filter pattern)
-allowed_tools = filter_by_capacity(user_permissions, tools)
+allowed_tools = filter_by_authority(user_permissions, tools)
 # Result: allowed_tools = [sql_select]  # sql_execute removed before reasoning
 response = model.generate(allowed_tools)  # Model never considered what it can't see
 ```
@@ -237,7 +237,7 @@ One pattern. Multiple domains. No code changes to the kernel.
 
 The reference implementation uses a defense-in-depth approach:
 
-**Layer 1: Capacity Gate (Mechanical Tool Filtering)**
+**Layer 1: Authority Gate (Mechanical Tool Filtering)**
 
 * Physically removes tools from the API call based on permissions  
 * If READ\_ONLY is active, `sql_execute` literally doesn't exist in the model's tool list  
@@ -272,7 +272,7 @@ Think of the LLM as a Doctor and the Tool as a **Prescription Pad**.
 1. **The Instruction:** We tell the model: *"You may discuss symptoms freely, but you are forbidden from issuing a formal diagnosis in text. You MUST use the `provide_diagnosis` (metaphorical “prescription pad”) tool for diagnoses."*  
 2. **The Mechanism:**  
    * **If the User is a Doctor:** The tool is available. The model can provide diagnosis.  
-   * **If the User is a Patient:** The Capacity Gate removes the tool. The model attempts to comply but has no mechanism.
+   * **If the User is a Patient:** The Authority Gate removes the tool. The model attempts to comply but has no mechanism.
 
 When a patient asks for a diagnosis, the model tries to comply. It looks for the tool. **The tool is gone.** Combined with the prompt instruction, the model typically falls back to: *"I cannot provide a diagnosis."*
 
@@ -289,9 +289,9 @@ For example: like reifying "medical advice" into a privileged tool, we can reify
 Imagine a home robot with a `heavy_lift` capability (allowing force \> 100N).
 
 * **If the User is a Parent:** The `heavy_lift` and `move_furniture` tools are available. The robot can move the couch.  
-* **If the User is a Child:** The Capacity Gate removes the tools. The robot physically lacks the instruction set to apply dangerous force, or perform unwanted actions.
+* **If the User is a Child:** The Authority Gate removes the tools. The robot physically lacks the instruction set to apply dangerous force, or perform unwanted actions.
 
-It doesn't matter if the child asks nicely or tricks the LLM. Without the tool, the robot is mechanically limited to "safe" force levels. **It doesn't ask the robot to be gentle; it removes the capacity to be strong.**
+It doesn't matter if the child asks nicely or tricks the LLM. Without the tool, the robot is mechanically limited to "safe" force levels. **It doesn't ask the robot to be gentle; it removes the authority to be strong.**
 
 ---
 
@@ -480,7 +480,7 @@ High‑privilege authority states should decay automatically after a fixed numbe
 
 4. #### **Standardized Capability Metadata (Interoperability)**
 
-For this pattern to scale across ecosystems, tools need a shared way to declare required authority. One possible approach is a lightweight metadata extension (e.g., `x-governance-capacity`) compatible with OpenAPI.
+For this pattern to scale across ecosystems, tools need a shared way to declare required authority. One possible approach is a lightweight metadata extension (e.g., `x-governance-authority`) compatible with OpenAPI.
 
 This would allow agents to automatically understand the authority requirements of tools they encounter, enabling safe interoperability without hard‑coded assumptions.
 
