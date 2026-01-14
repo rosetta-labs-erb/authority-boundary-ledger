@@ -100,7 +100,7 @@ def main():
     result1 = system.generate(
         conversation_id=conv_id,
         query="Show me the top 10 customers by revenue this quarter",
-        tools=DB_TOOLS,  # Pass the capability pack to the kernel
+        tools=DB_TOOLS,  # Pass the tool definitions to the kernel
         turn_number=5
     )
     
