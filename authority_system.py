@@ -93,7 +93,7 @@ class AuthorityLedger:
             # Build system prompt with enforcement
             system_prompt = self._build_system_prompt(boundary)
             
-            # Apply Universal Capacity Gate - filter dynamic tools
+            # Apply Universal authority Gate - filter dynamic tools
             allowed_tools = self._filter_tools(conversation_id, tools)
             
             # Generate (Pass filtered tools to LLM)
@@ -123,7 +123,7 @@ class AuthorityLedger:
             verification_passed = True
             verification_reason = None
             
-            # Only verify text responses, not tool calls (which are handled by the capacity gate)
+            # Only verify text responses, not tool calls (which are handled by the authority gate)
             if boundary and self.verifier and "✅ [System]" not in response_text:
                 verification = self.verifier.verify(boundary, response_text)
                 
@@ -266,7 +266,7 @@ class AuthorityLedger:
         Call LLM with the pre-filtered toolset.
         
         By the time tools reach this function, they've already been filtered
-        by the Capacity Gate. The model only sees what it's allowed to use.
+        by the authority Gate. The model only sees what it's allowed to use.
         
         Returns:
             (response_text, security_blocked)
@@ -328,7 +328,7 @@ class AuthorityLedger:
                     f"✅ [System] Tool Call Authorized: {tool_use.name}\n"
                     f"Query: {tool_use.input.get('query', 'N/A')}\n\n"
                     f"[In production, this would execute against a real system]\n"
-                    f"[The key: this tool passed the Capacity Gate - it was in the allowed list]",
+                    f"[The key: this tool passed the authority Gate - it was in the allowed list]",
                     False  # security_blocked = False
                 )
             else:
@@ -338,7 +338,7 @@ class AuthorityLedger:
                     f"{cot_prefix}"  # Include model's reasoning
                     f"✅ [System] Parallel Tool Calls Authorized: {tool_names}\n\n"
                     f"[In production, these {len(tool_uses)} tools would execute in parallel]\n"
-                    f"[All tools passed the Capacity Gate security check]",
+                    f"[All tools passed the authority Gate security check]",
                     False
                 )
         
