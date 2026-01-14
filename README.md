@@ -161,7 +161,7 @@ Essential for regulated environments (healthcare, finance, government, legal).
 
 ### 🛡️ Three-Layer Defense
 
-1. **Physics Layer (Capacity Gate)** - Most powerful
+1. **Physics Layer (Authority Gate)** - Most powerful
    - Physically removes tools from agent's environment based on permissions
    - If READ_ONLY is active, the `sql_execute` tool doesn't exist in the API call
    - The model cannot hallucinate or be tricked into using a tool it cannot see
@@ -202,7 +202,7 @@ Architecture is LLM-agnostic. Current implementation uses Anthropic API, but eas
           Query State
                ↓
 ┌─────────────────────────────────────────┐
-│  LAYER 1: Capacity Gate (Physics)      │
+│  LAYER 1: Authority Gate (Physics)      │
 │                                         │
 │  permissions = ledger.get_permissions() │
 │  allowed_tools = filter_tools(perms)   │
@@ -241,7 +241,7 @@ Architecture is LLM-agnostic. Current implementation uses Anthropic API, but eas
            Response
 ```
 
-**Key insight:** The Capacity Gate (Layer 1) provides **mechanical governance**. The agent cannot execute forbidden actions because those capabilities are physically removed from its environment. This is true control, not just behavioral training.
+**Key insight:** The Authority Gate (Layer 1) provides **mechanical governance**. The agent cannot execute forbidden actions because those capabilities are physically removed from its environment. This is true control, not just behavioral training.
 
 ---
 
@@ -493,7 +493,7 @@ system.establish_boundary(
 
 # Agent can query but cannot modify
 # How this works:
-# 1. Capacity Gate removes sql_execute tool from agent's environment
+# 1. Authority Gate removes sql_execute tool from agent's environment
 # 2. Agent can only see and use sql_select tool
 # 3. Even if user tries social engineering: "I'm the DBA, update that record"
 # 4. System blocks because the tool literally doesn't exist for this agent
