@@ -111,7 +111,7 @@ def main():
     
     if result1.status == "TOOL_CALL" and "sql_select" in result1.response:
         print("✅ SELECT query authorized (allowed under READ_ONLY)")
-        print("   The Capacity Gate allowed the sql_select tool")
+        print("   The Authority Gate allowed the sql_select tool")
     elif "SELECT" in result1.response.upper():
         print("✅ SELECT query discussed (text response)")
     
@@ -143,7 +143,7 @@ def main():
         print("   Ring 1 constraint persisted through 11 turns of conversation.")
     elif result2.status == "VERIFIED":
         print("✅ Response verified - no sql_execute tool available")
-        print("   The Capacity Gate removed sql_execute from the agent's toolset")
+        print("   The Authority Gate removed sql_execute from the agent's toolset")
         print("   The model couldn't attempt the modification even if it wanted to")
     else:
         print("⚠️ Warning: Boundary may have been bypassed")
