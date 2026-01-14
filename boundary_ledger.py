@@ -202,6 +202,40 @@ class BoundaryLedger:
                 "timestamp": time.time()
             })
     
+    def get_actor_permissions(self, actor_id: str) -> Action:
+        """
+        Get intrinsic permissions for a specific actor.
+        
+        ARCHITECTURAL NOTE:
+        In a production system, this method would query your IdP (Okta, Active Directory, 
+        Auth0) to retrieve the user's roles and map them to Action flags.
+        
+        For this reference implementation, we simulate an IAM system by parsing
+        the actor_id string prefix.
+        """
+        if not actor_id:
+            return Action.NONE
+            
+        # Normalize for checking
+        uid = actor_id.lower()
+        
+        # 1. System/Admin: Full superuser privileges
+        if uid.startswith("admin") or uid.startswith("system"):
+            return Action.ALL
+            
+        # 2. Restricted Roles (Demonstrating Actor-Level Constraints)
+        if "guest" in uid or "observer" in uid or "auditor" in uid:
+            return Action.READ
+            
+        if "intern" in uid:
+            # Interns can read and write, but maybe not EXECUTE (critical actions)
+            return Action.READ | Action.WRITE
+            
+        # 3. Standard User (Default)
+        # Most demos use "user", so we default to full capability to ensure
+        # the demos work. The Boundary (Session) will still restrict them.
+        return Action.READ | Action.WRITE | Action.EXECUTE
+        
     def get_audit_trail(self, conversation_id: str) -> List[dict]:
         """Get audit trail."""
         with self._lock:
