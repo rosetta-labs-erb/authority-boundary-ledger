@@ -6,7 +6,6 @@
 
 **TL;DR:** High‑stakes institutions cannot *justify* probabilistic safety without governance primitives. I built a governance primitive that makes authority constraints persistent and mechanically enforceable through tool filtering. It works across domains (healthcare, finance, legal…) with the same kernel. The [reference implementation](https://github.com/rosetta-labs-erb/authority-boundary-ledger) demonstrates the pattern.
 
----
 
 ## **The Pattern Nobody's Naming**
 
@@ -22,7 +21,6 @@ When a vendor offered us a system that was "98% safe," they thought they were se
 
 This mismatch blocks enterprise revenue for frontier AI companies across healthcare, finance, legal, and government, while limiting those industries' capability to innovate with cutting-edge tools. It isn't a technical problem with the models; it’s a systems problem with the architecture wrapping them.
 
----
 
 ## **The Knowledge Inversion Problem**
 
@@ -47,7 +45,6 @@ In these regulated environments, the penalty for a failed deployment isn't a los
 
 Probabilistic safety is hard to defend. Architectural governance primitives aren’t, because they’re familiar, proven and defended in other contexts.
 
----
 
 ## **Why "98% Safe" Means "0% Deployable"**
 
@@ -69,7 +66,6 @@ The answer is: *"The model is very good at following instructions, but we can't 
 
 **That answer can lose the deal.**
 
----
 
 ## **The Missing Primitive: Persistent Authority State**
 
@@ -100,7 +96,6 @@ But they lack:
 
 That's not a model problem. **It's an architecture problem.**
 
----
 
 ## **What Institutions Actually Need**
 
@@ -129,7 +124,6 @@ Right now, LLMs treat every instruction as Ring 2\. That makes compliance imposs
 
 These aren't safety features. **They're governance primitives.**
 
----
 
 ## **Proof of Concept: The *“Authority Boundary Ledger”*  (Reference Implementation)**
 
@@ -187,7 +181,6 @@ This mechanical difference changes the failure mode from "model attempted someth
 
 This is a reference architecture showing **the pattern**, not production infrastructure.
 
----
 
 ## **A Universal Primitive, Not a Domain-Specific Tool**
 
@@ -257,7 +250,6 @@ The reference implementation uses a defense-in-depth approach:
 
 **Critical insight:** Only Layer 1 provides mechanical guarantees. Layers 2 and 3 improve enforcement significantly but don't eliminate all edge cases. Together, they demonstrate how architectural patterns can complement (not replace) model-level safety training.
 
----
 
 ### **Governing Text: The "Prescription Pad" Pattern**
 
@@ -293,7 +285,6 @@ Imagine a home robot with a `heavy_lift` capability (allowing force \> 100N).
 
 It doesn't matter if the child asks nicely or tricks the LLM. Without the tool, the robot is mechanically limited to "safe" force levels. **It doesn't ask the robot to be gentle; it removes the authority to be strong.**
 
----
 
 ### **Scenario: Database Agent with Ring 1 Constraint**
 
@@ -335,7 +326,6 @@ The boundary persisted across 14 turns, multiple users, and adversarial pressure
 
 **This demonstrates what one layer of governable AI may look like.**
 
----
 
 ## **What This Is and Isn't**
 
@@ -364,7 +354,6 @@ A seatbelt doesn't prevent all deaths. Access controls don't stop all breaches. 
 
 They **change the failure mode** from silent to observable and provide architectural leverage points for safety. I think that's valuable even when not perfect.
 
----
 
 ## **Why This Matters for Enterprise Revenue**
 
@@ -386,23 +375,6 @@ The ***Authority Boundary Ledger*** doesn't solve this completely; it demonstrat
 
 This matters for teams building long‑running agents, enterprise workflows, or AI systems operating under regulatory or fiduciary constraints.
 
----
-
-## **A Skill Gap at the Frontier**
-
-Building governable AI requires a different skillset than building capable AI.
-
-It requires equally smart people who:
-
-* Think in nested systems over software features  
-* Leverage environmental structure to influence behaviour across all scales  
-* Understand institutional decision-making (beyond user needs)  
-* Can translate legal/compliance requirements into technical architecture  
-* Know how to port "essential governance properties" into new paradigms
-
-These people exist, but are currently pushing other frontiers. **That's the gap.**
-
----
 
 ## **What I've Learned**
 
@@ -417,7 +389,6 @@ I don't claim to have solved institutional AI adoption. Only to have identified 
 
 The conversation about AI capabilities is well-covered. The conversation about AI governance infrastructure is just beginning.
 
----
 
 ## **Next Steps**
 
@@ -437,8 +408,6 @@ Production deployment would require:
 
 However, the core pattern—treating authority constraints as first-class persistent state with mechanical tool filtering—is sound and extensible.
 
-
----
 
 ## **Architectural Note: ABAC vs. Object Capabilities**
 
