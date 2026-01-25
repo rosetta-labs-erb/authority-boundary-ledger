@@ -71,7 +71,7 @@ The answer is: *"The model is very good at following instructions, but we can't 
 
 *By ‘primitive,’ I don’t mean a new model capability—I mean a missing governance layer between probabilistic reasoning and institutional accountability.*
 
-While inspired by the **Object-Capability (OCap)** philosophy of 'filtering access before execution', this implementation uses **Attribute-Based Access Control (ABAC)** to map strictly to institutional hierarchies.
+While inspired by the **Object-Capability (OCap)** philosophy of 'filtering access before execution', this implementation uses **Attribute-Based Access Control (ABAC)** to map strictly to institutional hierarchies. (Such as Okta Groups)
 
 Here's what I noticed building Ontario's digital infrastructure: We spent enormous effort on **institutional trust mechanisms** that didn't make the product "better" in a traditional sense, but made things **governable**.
 
