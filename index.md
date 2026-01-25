@@ -1,4 +1,4 @@
-# **The Institutional Trust Problem in AI Deployment**
+# **The Institutional Trust Problem in Enterprise AI**
 
 *I led Product for Ontario's Digital Service, managing services for 15 million citizens. Here's why AI agents fail institutional adoption—and one architectural primitive that helps address it.*
 
